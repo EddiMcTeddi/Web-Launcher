@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Launcher</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #06060d;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .launcher {
+      font-family: 'JetBrains Mono', monospace;
+      background: #0a0a0f;
+      color: #e8e6f0;
+      width: 100%;
+      max-width: 860px;
+      padding: 20px;
+      border-radius: 20px;
+      border: 0.5px solid #1e1e2e;
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      grid-template-rows: auto auto auto;
+      gap: 12px;
+    }
+
+    .card {
+      background: #12121a;
+      border: 0.5px solid #2a2a3d;
+      border-radius: 14px;
+      padding: 16px 18px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card-label {
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #555570;
+      margin-bottom: 8px;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* Clock */
+    .card-clock { grid-column: 1 / 2; grid-row: 1 / 2; }
+
+    .clock-time {
+      font-size: 36px;
+      font-weight: 800;
+      letter-spacing: -1px;
+      color: #e8e6f0;
+      font-variant-numeric: tabular-nums;
+      line-height: 1;
+    }
+
+    .clock-secs { color: #6c5ce7; font-size: 28px; }
+
+    .clock-date {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: #888898;
+      margin-top: 8px;
+      line-height: 1.6;
+      white-space: pre-line;
+    }
+
+    /* Weather */
+    .card-weather { grid-column: 2 / 3; grid-row: 1 / 2; }
+
+    .weather-main { display: flex; align-items: center; gap: 10px; }
+    .weather-icon { font-size: 32px; line-height: 1; }
+
+    .weather-temp {
+      font-size: 34px;
+      font-weight: 800;
+      letter-spacing: -1px;
+      color: #e8e6f0;
+    }
+
+    .weather-desc {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: #888898;
+      margin-top: 6px;
+    }
+
+    .weather-details { display: flex; gap: 14px; margin-top: 8px; }
+
+    .weather-detail {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: #666680;
+    }
+
+    .weather-detail span { color: #aaa8c0; }
+
+    /* Crypto */
+    .card-crypto { grid-column: 3 / 4; grid-row: 1 / 2; }
+
+    .crypto-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 0;
+      border-bottom: 0.5px solid #1e1e2e;
+    }
+
+    .crypto-row:last-child { border-bottom: none; }
+
+    .crypto-name { font-size: 13px; font-weight: 600; color: #c8c6e0; }
+
+    .crypto-symbol {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: #555570;
+      display: block;
+    }
+
+    .crypto-price { text-align: right; }
+
+    .crypto-usd {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      font-weight: 500;
+      color: #e8e6f0;
+    }
+
+    .crypto-change {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      display: block;
+      text-align: right;
+    }
+
+    .pos { color: #00b894; }
+    .neg { color: #e17055; }
+
+    /* Notes */
+    .card-notes { grid-column: 1 / 3; grid-row: 2 / 3; }
+
+    .notes-area {
+      width: 100%;
+      background: #0e0e18;
+      border: 0.5px solid #2a2a3d;
+      border-radius: 8px;
+      color: #c8c6e0;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      line-height: 1.7;
+      padding: 10px 12px;
+      resize: none;
+      height: 110px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .notes-area:focus { border-color: #6c5ce7; }
+    .notes-area::placeholder { color: #333348; }
+
+    /* Quick links */
+    .card-links { grid-column: 3 / 4; grid-row: 2 / 3; }
+
+    .quick-links { display: flex; flex-direction: column; gap: 7px; }
+
+    .qlink {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 7px 10px;
+      background: #0e0e18;
+      border: 0.5px solid #2a2a3d;
+      border-radius: 8px;
+      cursor: pointer;
+      text-decoration: none;
+      color: #aaa8c0;
+      font-size: 12px;
+      font-weight: 600;
+      transition: all 0.15s;
+    }
+
+    .qlink:hover {
+      background: #1a1a2e;
+      border-color: #6c5ce7;
+      color: #e8e6f0;
+    }
+
+    .qlink-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    /* Status bar */
+    .card-status {
+      grid-column: 1 / 4;
+      grid-row: 3 / 4;
+      background: #12121a;
+      border: 0.5px solid #2a2a3d;
+      border-radius: 14px;
+      padding: 10px 18px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: #444458;
+    }
+
+    .status-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #00b894;
+      display: inline-block;
+      margin-right: 5px;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    /* Refresh button */
+    .refresh-btn {
+      position: absolute;
+      top: 12px;
+      right: 14px;
+      background: none;
+      border: none;
+      color: #444458;
+      cursor: pointer;
+      font-size: 18px;
+      padding: 2px;
+      transition: color 0.2s;
+      line-height: 1;
+    }
+
+    .refresh-btn:hover { color: #6c5ce7; }
+
+    .loading-text {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: #555570;
+      animation: blink 1.2s infinite;
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+
+    .error-text {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: #e17055;
+    }
+@keyframes ticker {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+  </style>
+</head>
+<body>
+
+<div class="launcher">
+
+  <!-- CLOCK -->
+  <div class="card card-clock">
+    <div class="card-label">🕐 klokke</div>
+    <div class="clock-time">
+      <span id="hm">--:--</span><span class="clock-secs">:<span id="secs">--</span></span>
+    </div>
+    <div class="clock-date" id="date-display">--</div>
+  </div>
+
+  <!-- WEATHER -->
+  <div class="card card-weather">
+    <div class="card-label">🌤 vær — askim</div>
+    <button class="refresh-btn" onclick="fetchWeather()" title="Oppdater vær">↻</button>
+    <div id="weather-content">
+      <span class="loading-text">henter vær...</span>
+    </div>
+  </div>
+
+  <!-- CRYPTO -->
+  <div class="card card-crypto">
+    <div class="card-label">₿ krypto — live</div>
+    <button class="refresh-btn" onclick="fetchCrypto()" title="Oppdater krypto">↻</button>
+    <div id="crypto-content">
+      <span class="loading-text">henter kurser...</span>
+    </div>
+  </div>
+
+  <!-- NOTES -->
+  <div class="card card-notes">
+    <div class="card-label">📝 notater</div>
+    <textarea class="notes-area" id="notes-area" placeholder="Skriv notater her... (lagres automatisk)"></textarea>
+  </div>
+
+  <!-- QUICK LINKS -->
+  <div class="card card-links">
+    <div class="card-label">🔗 snarveier</div>
+    <div class="quick-links">
+      <a class="qlink" href="https://mail.google.com" target="_blank">
+        <span class="qlink-dot" style="background:#ea4335"></span>Gmail
+      </a>
+      <a class="qlink" href="https://account.proton.me/login" target="_blank">
+        <span class="qlink-dot" style="background:#6c5ce7"></span>ProtonMail
+      </a>
+      <a class="qlink" href="https://github.com" target="_blank">
+        <span class="qlink-dot" style="background:#6c5ce7"></span>GitHub
+      </a>
+      <a class="qlink" href="https://www.youtube.com" target="_blank">
+        <span class="qlink-dot" style="background:#ff0000"></span>YouTube
+      </a>
+      <a class="qlink" href="https://claude.ai" target="_blank">
+        <span class="qlink-dot" style="background:#00b894"></span>Claude
+      </a>
+      <a class="qlink" href="https://www.coingecko.com" target="_blank">
+        <span class="qlink-dot" style="background:#6c5ce7"></span>CoinGecko
+      </a>
+    </div>
+  </div>
+
+  <!-- STATUS BAR -->
+ <div class="card-status" style="padding:0; overflow:hidden;">
+  <div id="ticker-track" style="
+    display:flex; gap:60px; white-space:nowrap;
+    animation: ticker 20s linear infinite;
+    font-family:'JetBrains Mono',monospace; font-size:11px; color:#444458;
+    padding: 10px 0;
+  "></div>
+</div>
+
+</div>
+
+<script>
+  const DAYS = ['søndag','mandag','tirsdag','onsdag','torsdag','fredag','lørdag'];
+  const MONTHS = ['januar','februar','mars','april','mai','juni','juli','august','september','oktober','november','desember'];
+
+  function pad(n) { return String(n).padStart(2, '0'); }
+
+  function updateClock() {
+    const now = new Date();
+    document.getElementById('hm').textContent = pad(now.getHours()) + ':' + pad(now.getMinutes());
+    document.getElementById('secs').textContent = pad(now.getSeconds());
+    document.getElementById('date-display').textContent =
+      DAYS[now.getDay()] + '\n' +
+      now.getDate() + '. ' + MONTHS[now.getMonth()] + ' ' + now.getFullYear();
+  }
+
+  setInterval(updateClock, 1000);
+  updateClock();
+
+  /* ── Weather (Open-Meteo, gratis og åpen) ─────────────────────── */
+
+  const WMO_CODES = {
+    0:'Klarvær', 1:'Stort sett klart', 2:'Delvis skyet', 3:'Overskyet',
+    45:'Tåke', 48:'Rimtåke',
+    51:'Lett yr', 53:'Moderat yr', 55:'Kraftig yr',
+    61:'Lett regn', 63:'Moderat regn', 65:'Kraftig regn',
+    71:'Lett snø', 73:'Moderat snø', 75:'Kraftig snø',
+    80:'Lette regnbyger', 81:'Moderate regnbyger', 82:'Kraftige regnbyger',
+    85:'Snøbyger', 86:'Kraftige snøbyger',
+    95:'Tordenvær', 96:'Tordenvær m/hagl', 99:'Kraftig tordenvær'
+  };
+
+  const WMO_ICON = {
+    0:'☀️', 1:'🌤', 2:'⛅', 3:'☁️', 45:'🌫', 48:'🌫',
+    51:'🌦', 53:'🌦', 55:'🌧', 61:'🌧', 63:'🌧', 65:'🌧',
+    71:'🌨', 73:'❄️', 75:'❄️', 80:'🌦', 81:'🌧', 82:'⛈',
+    85:'🌨', 86:'❄️', 95:'⛈', 96:'⛈', 99:'⛈'
+  };
+
+  async function fetchWeather() {
+    const el = document.getElementById('weather-content');
+    el.innerHTML = '<span class="loading-text">henter vær...</span>';
+    try {
+      const url = 'https://api.open-meteo.com/v1/forecast' +
+        '?latitude=59.9139&longitude=10.7522' +
+        '&current=temperature_2m,apparent_temperature,relative_humidity_2m,wind_speed_10m,weathercode' +
+        '&wind_speed_unit=ms&timezone=Europe%2FOslo';
+      const r = await fetch(url);
+      if (!r.ok) throw new Error('API feil');
+      const d = await r.json();
+      const c = d.current;
+      const code = c.weathercode;
+      const icon = WMO_ICON[code] || '🌡';
+      const desc = WMO_CODES[code] || 'Ukjent';
+      el.innerHTML = `
+        <div class="weather-main">
+          <span class="weather-icon">${icon}</span>
+          <span class="weather-temp">${Math.round(c.temperature_2m)}°C</span>
+        </div>
+        <div class="weather-desc">${desc}</div>
+        <div class="weather-details">
+          <span class="weather-detail">Føles <span>${Math.round(c.apparent_temperature)}°</span></span>
+          <span class="weather-detail">Fukt <span>${c.relative_humidity_2m}%</span></span>
+          <span class="weather-detail">Vind <span>${c.wind_speed_10m} m/s</span></span>
+        </div>
+      `;
+    } catch (e) {
+      el.innerHTML = '<span class="error-text">⚠ Kunne ikke hente vær</span>';
+    }
+  }
+
+  /* ── Crypto (CoinGecko, gratis og åpen) ───────────────────────── */
+
+  async function fetchCrypto() {
+    const el = document.getElementById('crypto-content');
+    el.innerHTML = '<span class="loading-text">henter kurser...</span>';
+    try {
+      const url = 'https://api.coingecko.com/api/v3/simple/price' +
+        '?ids=bitcoin,ethereum&vs_currencies=usd,nok&include_24hr_change=true';
+      const r = await fetch(url);
+      if (!r.ok) throw new Error('API feil');
+      const d = await r.json();
+
+      function fmtUsd(n) {
+        return n >= 1000
+          ? '$' + Math.round(n).toLocaleString('no-NO')
+          : '$' + n.toFixed(2);
+      }
+      function fmtNok(n) {
+        return Math.round(n).toLocaleString('no-NO') + ' kr';
+      }
+      function chg(n) {
+        return (n >= 0 ? '+' : '') + n.toFixed(2) + '%';
+      }
+
+      const btc = d.bitcoin;
+      const eth = d.ethereum;
+const items = [
+  `BTC  $${Math.round(btc.usd).toLocaleString('no-NO')}  ${btc.usd_24h_change >= 0 ? '▲' : '▼'} ${Math.abs(btc.usd_24h_change).toFixed(2)}%`,
+  `ETH  $${Math.round(eth.usd).toLocaleString('no-NO')}  ${eth.usd_24h_change >= 0 ? '▲' : '▼'} ${Math.abs(eth.usd_24h_change).toFixed(2)}%`,
+];
+const repeated = [...items, ...items, ...items, ...items].join('          ·          ');
+const track = document.getElementById('ticker-track');
+track.textContent = repeated;
+
+      el.innerHTML = `
+        <div class="crypto-row">
+          <div>
+            <span class="crypto-name">Bitcoin</span>
+            <span class="crypto-symbol">BTC</span>
+          </div>
+          <div class="crypto-price">
+            <span class="crypto-usd">${fmtUsd(btc.usd)}</span>
+            <span class="crypto-change ${btc.usd_24h_change >= 0 ? 'pos' : 'neg'}">${chg(btc.usd_24h_change)} 24t</span>
+            <span class="crypto-change" style="color:#444458;font-size:10px">${fmtNok(btc.nok)}</span>
+          </div>
+        </div>
+        <div class="crypto-row">
+          <div>
+            <span class="crypto-name">Ethereum</span>
+            <span class="crypto-symbol">ETH</span>
+          </div>
+          <div class="crypto-price">
+            <span class="crypto-usd">${fmtUsd(eth.usd)}</span>
+            <span class="crypto-change ${eth.usd_24h_change >= 0 ? 'pos' : 'neg'}">${chg(eth.usd_24h_change)} 24t</span>
+            <span class="crypto-change" style="color:#444458;font-size:10px">${fmtNok(eth.nok)}</span>
+          </div>
+        </div>
+      `;
+    } catch (e) {
+      el.innerHTML = '<span class="error-text">⚠ Kunne ikke hente kryptokurser — prøv igjen</span>';
+    }
+  }
+
+  /* ── Notes (localStorage) ─────────────────────────────────────── */
+
+  const notesKey = 'launcher_notes_v1';
+  const notesEl = document.getElementById('notes-area');
+  try { notesEl.value = localStorage.getItem(notesKey) || ''; } catch (e) {}
+  notesEl.addEventListener('input', () => {
+    try { localStorage.setItem(notesKey, notesEl.value); } catch (e) {}
+  });
+
+  /* ── Init & polling ───────────────────────────────────────────── */
+
+  fetchWeather();
+  fetchCrypto();
+  setInterval(fetchCrypto, 60000);   // Krypto hvert minutt
+  setInterval(fetchWeather, 300000); // Vær hvert 5. minutt
+</script>
+</body>
+</html>
